@@ -65,11 +65,9 @@ namespace WPF_UI
             try
             {
                 statusLabel.Content = "Status: ";
-
                 runBtn.IsEnabled = selectBtn.IsEnabled = pathTB.IsEnabled = false;
 
                 if (!CheckFileExist(pathTB.Text)) throw new Exception();
-                if (encodeRadio.IsChecked.HasValue && encodeRadio.IsChecked.Value) throw new Exception();
 
                 if (encodeRadio.IsChecked.HasValue && encodeRadio.IsChecked.Value)
                     await _huffmanService.EncodeAsync(pathTB.Text);
