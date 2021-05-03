@@ -15,29 +15,26 @@ namespace BL
             throw new NotImplementedException();
         }
 
-        public async Task EncodeAsync(string filePath)
+        public async Task EncodeAsync(string filePath, int blockSize)
         {
             ValidateFilePath(filePath);
+            ValidateBlockSize(filePath, blockSize);
 
             var fileInfo = new FileInfo(filePath);
             string outputPath = fileInfo.DirectoryName + "\\" + fileInfo.Name.Remove(fileInfo.Name.IndexOf('.')) + ".huff";
 
             using var inputStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            using var outputStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write);
+
             byte[] inputeBytes = new byte[inputStream.Length];
             await inputStream.ReadAsync(inputeBytes);
 
-            var groupedBytes = inputeBytes.GroupBy(ib => ib)
-                .Select(g => new
-                {
-                    Byte = g.Key,
-                    Count = g.LongCount()
-                }).OrderBy(g => g.Count).ToDictionary(g => g.Byte, g => g.Count);
-
-            var huffmanCode = CreateHuffmanCode(groupedBytes);
-
-            using var outputStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write);
-
-
+            var byteArrays = inputeBytes.Chunk(blockSize).ToByteArray();
+            var groupedBytes = byteArrays.GroupBy(cb => cb).Select(g => new
+            {
+                Key = g.Key,
+                Count = g.LongCount()
+            }).OrderBy(g => g.Key).ToList();
 ;
         }
 
@@ -47,9 +44,10 @@ namespace BL
             if (!File.Exists(filePath)) throw new ArgumentException(nameof(filePath));
         }
 
-        private Dictionary<byte, byte> CreateHuffmanCode(Dictionary<byte, long> bytes)
+        private void ValidateBlockSize(string filePath, int blockSize)
         {
-
+            var fileInfo = new FileInfo(filePath);
+            if (blockSize > fileInfo.Length || blockSize < 2) throw new ArgumentException(nameof(blockSize));
         }
     }
 }

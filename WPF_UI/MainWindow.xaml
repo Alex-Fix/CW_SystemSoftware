@@ -11,12 +11,14 @@
         <RadioButton x:Name="encodeRadio" Content="Encode" HorizontalAlignment="Left" Margin="139,27,0,0" VerticalAlignment="Top" IsChecked="True" Checked="EncodeRadioChecked"/>
         <RadioButton x:Name="decodeRadio" Content="Decode" HorizontalAlignment="Left" Margin="230,27,0,0" VerticalAlignment="Top" Checked="DecodeRadioChecked"/>
         <Label x:Name="selectLabel" Content="Select a file: " HorizontalAlignment="Left" Margin="20,51,0,0" VerticalAlignment="Top"/>
-        <TextBox x:Name="pathTB" HorizontalAlignment="Left" Margin="20,85,0,0" Text="" TextWrapping="NoWrap" VerticalAlignment="Top" Width="340" Height="23"/>
+        <TextBox x:Name="pathTB" HorizontalAlignment="Left" Margin="20,85,0,0" Text="" TextWrapping="NoWrap" VerticalAlignment="Top" Width="340" Height="23" KeyDown="PathTBKeyDown"/>
         <Button x:Name="selectBtn" Content="Select" HorizontalAlignment="Left" Margin="374,85,0,0" VerticalAlignment="Top" Height="23" Width="57" Click="SelectBtnClick"/>
         <Button x:Name="runBtn" Content="Run" HorizontalAlignment="Left" Margin="20,261,0,0" VerticalAlignment="Top" Height="23" Width="54" Click="RunBtnClick"/>
         <Label x:Name="statusLabel" Content="Status: " HorizontalAlignment="Left" Margin="86,261,0,0" VerticalAlignment="Top" Height="23"/>
-
-
-
+        <Label x:Name="blockSizeLabel" Content="Select block size: " HorizontalAlignment="Left" Margin="20,136,0,0" VerticalAlignment="Top"/>
+        <Slider x:Name="blockSizeSlider" HorizontalAlignment="Left" Margin="14,167,0,0" VerticalAlignment="Top" Width="282" Minimum="2" Maximum="2" ValueChanged="BlockSizeSliderValueChanged"/>
+        <TextBox x:Name="blockSizeTB" HorizontalAlignment="Left" Margin="311,167,0,0" Text="" TextWrapping="NoWrap" VerticalAlignment="Top" Width="120" Height="18" KeyDown="blockSizeTBKeyDown"/>
+        <Label x:Name="minLabel" Content="Min: " HorizontalAlignment="Left" Margin="20,208,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="maxLabel" Content="Max: " HorizontalAlignment="Left" Margin="190,208,0,0" VerticalAlignment="Top"/>
     </Grid>
 </Window>

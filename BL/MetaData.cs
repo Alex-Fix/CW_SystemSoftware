@@ -11,7 +11,9 @@ namespace BL
     {
         [JsonProperty("file_name")]
         internal string FileName { get; set; }
+        [JsonProperty("block_size")]
+        internal int BlockSize { get; set; }
         [JsonProperty("compression_bytes")]
-        internal Dictionary<byte, byte> CompressionBytes { get; set; }
+        internal IDictionary<ByteArray, ByteArray> CompressionBytes { get; set; }
     }
 }
