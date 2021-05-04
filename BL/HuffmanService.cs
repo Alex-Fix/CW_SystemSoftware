@@ -12,7 +12,19 @@ namespace BL
     {
         public async Task DecodeAsync(string filePath)
         {
-            throw new NotImplementedException();
+            ValidateFilePath(filePath);
+
+            var fileInfo = new FileInfo(filePath);
+            if (!fileInfo.Name.Contains(".huff")) throw new ArgumentException(nameof(filePath));
+
+            using var inputStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            var metaData = GetMetaData(inputStream);
+            var huffmanCode = metaData.CompressionBytes.ToHuffmanCode();
+
+            string outputPath = fileInfo.DirectoryName + "\\Decoded_" + metaData.FileName;
+            using var outputStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write);
+
+            await DecodeAsync(huffmanCode, inputStream, outputStream);
         }
 
         public async Task EncodeAsync(string filePath, int blockSize)
@@ -45,7 +57,7 @@ namespace BL
             { 
                 BlockSize = blockSize,
                 FileName = fileInfo.Name,
-                CompressionBytes = huffmanCode
+                CompressionBytes = huffmanCode.ToDictionary(el => JsonConvert.SerializeObject(el.Key.Bytes), el => el.Value.Bytes.ToArray())
             };
 
             await EncodeAsync(metaData, byteArrays, huffmanCode, outputStream);
@@ -66,6 +78,34 @@ namespace BL
 
             foreach(var chunk in bytesToWrite.Chunk(100000))
                 await ouputStream.WriteAsync(chunk.ToArray());
+        }
+
+        private async Task DecodeAsync(IEnumerable<ByteArrayPair> huffmanCode, FileStream inputStream, FileStream outputStream)
+        {
+            var buffer = new ByteArray(new List<byte>());
+            while (inputStream.Position != inputStream.Length)
+            {
+                buffer.Bytes.Add((byte)inputStream.ReadByte());
+                var code = huffmanCode.FirstOrDefault(hc => hc.Key.Equals(buffer));
+                if(code != null)
+                {
+                    await outputStream.WriteAsync(code.Value.Bytes.ToArray());
+                    buffer.Bytes.Clear();
+                }
+            }
+        }
+
+        private MetaData GetMetaData(FileStream inputStream)
+        {
+            var bytes = new List<byte>();
+            while (true)
+            {
+                var oneByte = inputStream.ReadByte();
+                if (oneByte == 0) break;
+                bytes.Add((byte)oneByte);
+            }
+            var metaDataStr = Encoding.UTF8.GetString(bytes.ToArray());
+            return JsonConvert.DeserializeObject<MetaData>(metaDataStr);
         }
 
         private void ValidateFilePath(string filePath)

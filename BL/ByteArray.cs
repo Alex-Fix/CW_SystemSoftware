@@ -11,19 +11,23 @@ namespace BL
     internal class ByteArray
     {
         [JsonProperty("bytes")]
-        internal IEnumerable<byte> Bytes { get; set; }
+        internal IList<byte> Bytes { get; set; }
 
         public ByteArray(IEnumerable<byte> bytes)
         {
-            this.Bytes = bytes;
+            this.Bytes = bytes.ToList();
         }
 
         public override bool Equals(object obj)
         {
             var byteKey = obj as ByteArray;
             if (byteKey is null) return false;
+            if (this.Bytes.Count() != byteKey.Bytes.Count()) return false;
 
-            return this.GetHashCode() == byteKey.GetHashCode();
+            for (int i = 0; i < this.Bytes.Count(); ++i)
+                if (this.Bytes.ElementAt(i) != byteKey.Bytes.ElementAt(i)) return false;
+
+            return true;
         }
 
         public override int GetHashCode()

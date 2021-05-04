@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -135,5 +136,15 @@ namespace BL
 
             return huffmanCode;
         }
+
+        internal static IEnumerable<ByteArrayPair> ToHuffmanCode(this IDictionary<string, byte[]> compressionBytes)
+        {
+            return compressionBytes.Select(cb => new ByteArrayPair
+            {
+                Key = new ByteArray(cb.Value),
+                Value = new ByteArray(JsonConvert.DeserializeObject<byte[]>(cb.Key))
+            }).ToList();
+        }
     }
 }
+

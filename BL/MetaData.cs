@@ -14,6 +14,6 @@ namespace BL
         [JsonProperty("block_size")]
         internal int BlockSize { get; set; }
         [JsonProperty("compression_bytes")]
-        internal IDictionary<ByteArray, ByteArray> CompressionBytes { get; set; }
+        internal IDictionary<string, byte[]> CompressionBytes { get; set; }
     }
 }
