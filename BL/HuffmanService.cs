@@ -41,7 +41,7 @@ namespace BL
 
             var calculatedBytes = groupedBytes.CalculateFreequency().ToList();
 
-            var encodedBytes = calculatedBytes.CalculateCode().ToList();
+            var encodedBytes = calculatedBytes.CalculateCodeLoop().ToList();
 
 
         }

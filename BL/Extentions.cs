@@ -28,7 +28,7 @@ namespace BL
             return array;
         }
 
-        internal static IEnumerable<GroupedByteArray> CalculateCode(this IEnumerable<GroupedByteArray> groupedBytes, string code = "")
+        internal static IEnumerable<GroupedByteArray> CalculateCodeRecursive(this IEnumerable<GroupedByteArray> groupedBytes, string code = "")
         {
             if (groupedBytes.Count() < 2) return groupedBytes;
 
@@ -53,8 +53,59 @@ namespace BL
                 accumulator += groupedByte.Freequency;
             }
 
-            firstPart.CalculateCode(code + "1");
-            secondPart.CalculateCode(code + "0");
+            firstPart.CalculateCodeRecursive(code + "1");
+            secondPart.CalculateCodeRecursive(code + "0");
+
+            return groupedBytes;
+        }
+
+        internal static IEnumerable<GroupedByteArray> CalculateCodeLoop(this IEnumerable<GroupedByteArray> groupedBytes)
+        {
+            var codeStack = new Stack<string>();
+            var groupedBytesStack = new Stack<IEnumerable<GroupedByteArray>>();
+
+            codeStack.Push("");
+            groupedBytesStack.Push(groupedBytes);
+
+            while (groupedBytesStack.Any())
+            {
+                var localGroupedBytes = groupedBytesStack.Pop();
+                var localCode = codeStack.Pop();
+
+                if (localGroupedBytes.Count() < 2) continue;
+
+                decimal allFreequency = localGroupedBytes.Sum(gb => gb.Freequency);
+                decimal accumulator = default;
+
+                var firstPart = new List<GroupedByteArray>();
+                var secondPart = new List<GroupedByteArray>();
+
+                foreach (var groupedByte in localGroupedBytes)
+                {
+                    if (accumulator + groupedByte.Freequency <= allFreequency / 2 || localGroupedBytes.Count() == 2 && localGroupedBytes.First() == groupedByte)
+                    {
+                        groupedByte.Code = localCode + "1";
+                        firstPart.Add(groupedByte);
+                    }
+                    else
+                    {
+                        groupedByte.Code = localCode + "0";
+                        secondPart.Add(groupedByte);
+                    }
+                    accumulator += groupedByte.Freequency;
+                }
+
+                if(secondPart.Count() > 1)
+                {
+                    codeStack.Push(localCode + "0");
+                    groupedBytesStack.Push(secondPart);
+                }
+                if(firstPart.Count() > 1)
+                {
+                    codeStack.Push(localCode + "1");
+                    groupedBytesStack.Push(firstPart);
+                }
+            }
 
             return groupedBytes;
         }
