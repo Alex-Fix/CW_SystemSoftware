@@ -10,6 +10,7 @@ namespace BL
 {
     internal class ByteArray
     {
+        [JsonProperty("bytes")]
         internal IEnumerable<byte> Bytes { get; set; }
 
         public ByteArray(IEnumerable<byte> bytes)
@@ -22,7 +23,7 @@ namespace BL
             var byteKey = obj as ByteArray;
             if (byteKey is null) return false;
 
-            return string.Equals(JsonConvert.SerializeObject(this.Bytes), JsonConvert.SerializeObject(byteKey.Bytes));
+            return this.GetHashCode() == byteKey.GetHashCode();
         }
 
         public override int GetHashCode()

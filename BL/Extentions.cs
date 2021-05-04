@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,6 +19,21 @@ namespace BL
         internal static IEnumerable<ByteArray> ToByteArray(this IEnumerable<IEnumerable<byte>> source)
         {
             return source.Select(s => new ByteArray(s.ToList())).ToList();
+        }
+
+        internal static ByteArray ToByteArray(this string str)
+        {
+            byte[] bytes = new byte[(int)Math.Ceiling(((decimal)str.Length) / 8)];
+
+            for (int i = 0; i < str.Length; ++i)
+            {
+                if (str[i] == '0') continue;
+                int byteIndex = i / 8;
+                int bitIndex = i % 8;
+                bytes[byteIndex] = (byte)(bytes[byteIndex] | (int)Math.Pow(2, bitIndex));
+            }
+
+            return new ByteArray(bytes);
         }
 
         internal static IEnumerable<GroupedByteArray> CalculateFreequency(this IEnumerable<GroupedByteArray> array)
@@ -40,7 +56,7 @@ namespace BL
 
             foreach(var groupedByte in groupedBytes)
             {
-                if (accumulator + groupedByte.Freequency <= allFreequency / 2)
+                if (accumulator + groupedByte.Freequency <= allFreequency / 2 || groupedBytes.Count() > 1 && groupedBytes.First() == groupedByte)
                 {
                     groupedByte.Code = code + "1";
                     firstPart.Add(groupedByte);
@@ -82,7 +98,7 @@ namespace BL
 
                 foreach (var groupedByte in localGroupedBytes)
                 {
-                    if (accumulator + groupedByte.Freequency <= allFreequency / 2 || localGroupedBytes.Count() == 2 && localGroupedBytes.First() == groupedByte)
+                    if (accumulator + groupedByte.Freequency <= allFreequency / 2 || localGroupedBytes.Count() > 1 && localGroupedBytes.First() == groupedByte)
                     {
                         groupedByte.Code = localCode + "1";
                         firstPart.Add(groupedByte);
@@ -108,6 +124,16 @@ namespace BL
             }
 
             return groupedBytes;
+        }
+
+        internal static IDictionary<ByteArray, ByteArray> ToHuffmanCode(this IEnumerable<GroupedByteArray> groupedBytes)
+        {
+            var huffmanCode = new Dictionary<ByteArray, ByteArray>();
+
+            foreach (var groupedByte in groupedBytes)
+                huffmanCode.Add(groupedByte.ByteArray, groupedByte.Code.ToByteArray());
+
+            return huffmanCode;
         }
     }
 }
