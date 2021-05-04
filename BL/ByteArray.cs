@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,15 +21,13 @@ namespace BL
         {
             var byteKey = obj as ByteArray;
             if (byteKey is null) return false;
-            if (this.Bytes == null || byteKey.Bytes == null || this.Bytes.Count() != byteKey.Bytes.Count()) return false;
-            for (int i = 0; i < this.Bytes.Count(); ++i)
-                if (this.Bytes.ElementAt(i) != byteKey.Bytes.ElementAt(i)) return false;
-            return true;
+
+            return string.Equals(JsonConvert.SerializeObject(this.Bytes), JsonConvert.SerializeObject(byteKey.Bytes));
         }
 
         public override int GetHashCode()
         {
-            return ((IStructuralEquatable)this.Bytes).GetHashCode(EqualityComparer<byte>.Default);
+            return JsonConvert.SerializeObject(this.Bytes).GetHashCode();
         }
     }
 }

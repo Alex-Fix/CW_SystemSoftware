@@ -30,12 +30,20 @@ namespace BL
             await inputStream.ReadAsync(inputeBytes);
 
             var byteArrays = inputeBytes.Chunk(blockSize).ToByteArray();
-            var groupedBytes = byteArrays.GroupBy(cb => cb).Select(g => new
+
+            var groupedBytes = byteArrays.GroupBy(cb => cb).Select(g => new GroupedByteArray
             {
-                Key = g.Key,
+                ByteArray = g.Key,
                 Count = g.LongCount()
-            }).OrderBy(g => g.Key).ToList();
-;
+            })
+            .OrderByDescending(g => g.Count)
+            .ToList();
+
+            var calculatedBytes = groupedBytes.CalculateFreequency().ToList();
+
+            var encodedBytes = calculatedBytes.CalculateCode().ToList();
+
+
         }
 
         private void ValidateFilePath(string filePath)
